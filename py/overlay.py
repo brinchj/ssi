@@ -15,18 +15,18 @@ def add_line(img, x0, y0, x1, y1):
   img[cc, rr] = (255, 0, 0)
 
 # coordinate for (0, 0) on the plot
-start_x = 89
-start_y = 477
+start_x = 80
+start_y = 405
 
 # the spacing between x-axis points (days)
-x_point_width = 4.1
+x_point_width = 3.77
 
 # the spacing between y-axis points (patients)
-y_point_width = 0.18
+y_point_width = 0.165
 
 # we have 523 pixels between the 3 plots
 # we draw our plot on top of each
-for offset_y in [0, 523, 523*2]:
+for offset_y in [0, 481, 481*2]:
   prev_x = start_x
   prev_y = start_y + offset_y
   for x, p in enumerate(points):
