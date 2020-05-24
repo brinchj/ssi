@@ -14,8 +14,8 @@ def add_line(img, x0, y0, x1, y1):
   cc, rr, val = draw.line_aa(int(y0), int(x0), int(y1), int(x1))
   img[cc, rr] = (255, 0, 0)
 
-fix_x = 0.95
-fix_y = 1.05
+fix_x = 1
+fix_y = 1
 
 # coordinate for (0, 0) on the plot
 start_x = 84
