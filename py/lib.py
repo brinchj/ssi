@@ -159,7 +159,6 @@ def merge(img_groups):
         color = [(255, 255), (255, 255), (255, 255)]
         buttom_pad = height - len(i)
         padded.append(np.pad(i, ((0, buttom_pad), (0, 0), (0, 0)), mode='constant', constant_values=color))
-        print(len(padded[-1]))
 
     return np.concatenate(padded, axis=1)
 
