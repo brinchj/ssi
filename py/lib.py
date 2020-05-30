@@ -18,17 +18,11 @@ class Prediction:
         y_axis = self.scan(search_xy, lambda x, y: (x, y-1))
         y_start = y_axis[0][1]
         y_end = y_axis[-1][1]
-        # for (x, y) in y_axis:
-        #     self.img[y, x] = (255, 0, 0, 255)
-        #     print(x, y)
 
         # Scan x axis.
         x_axis = self.scan(search_xy, lambda x, y: (x+1, y))
         x_start = x_axis[0][0]
         x_end = x_axis[-1][0]
-        # for (x, y) in x_axis:
-        #     self.img[y, x] = (255, 0, 0, 255)
-        #     print(x, y)
 
         # Calculate pixels on axis.
         y_pixels = abs(y_start - y_end)
