@@ -5,6 +5,14 @@ import numpy as np
 # read hospitalizations per day from datafile
 POINTS = list(map(int, open('hospitalized.txt').readlines()))
 
+
+class Plot:
+    def __init__(self, img, start_x, start_y):
+        self.img = img
+        self.start_x = start_x
+        self.start_y = start_y
+
+
 class Prediction:
     def __init__(self, path, x_size, y_size):
         self.path = path
@@ -59,7 +67,9 @@ class Prediction:
             crop_start_x = fix(lambda x: (self.img[crop_start_y:crop_end_y, x], x - 1), crop_start_x)
             crop_end_x = fix(lambda x: (self.img[crop_start_y:crop_end_y, x], x + 1), crop_end_x)
 
-        return self.img[crop_start_y:crop_end_y, crop_start_x:crop_end_x]
+        return Plot(self.img[crop_start_y:crop_end_y, crop_start_x:crop_end_x],
+                    x_start - crop_start_x,
+                    y_start - crop_start_y)
 
 
     def save(self):
@@ -151,16 +161,19 @@ def merge_vertical(*imgs):
     return np.concatenate(padded)
 
 def merge(img_groups):
-    imgs = [merge_vertical(*group) for group in img_groups]
-    height = max(len(i) for i in imgs)
-
-    padded = []
-    for i in imgs:
+    def pad_y(img, before, after):
         color = [(255, 255), (255, 255), (255, 255)]
-        buttom_pad = height - len(i)
-        padded.append(np.pad(i, ((0, buttom_pad), (0, 0), (0, 0)), mode='constant', constant_values=color))
+        return np.pad(img, ((before, after), (0, 0), (0, 0)), mode='constant', constant_values=color)
 
-    return np.concatenate(padded, axis=1)
+    max_y = max(max(i.start_y for i in group) for group in img_groups)
+    padded_groups = [[pad_y(i.img, max_y - i.start_y, 0) for i in g] for g in img_groups]
+
+    group_height = max(max(len(i) for i in group) for group in padded_groups)
+    padded_groups = [[pad_y(i, 0, group_height - len(i)) for i in g] for g in padded_groups]
+
+    imgs = [merge_vertical(*group) for group in padded_groups]
+    height = max(len(i) for i in imgs)
+    return np.concatenate([pad_y(i, 0, height - len(i)) for i in imgs], axis=1)
 
 
 def save(img, path):
