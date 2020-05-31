@@ -1,5 +1,6 @@
 # setup: pip3 install scikit-image
 from skimage import io, draw
+from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 
 # read hospitalizations per day from datafile
@@ -7,10 +8,11 @@ POINTS = list(map(int, open('hospitalized.txt').readlines()))
 
 
 class Plot:
-    def __init__(self, img, start_x, start_y):
+    def __init__(self, img, start_x, start_y, title=None):
         self.img = img
         self.start_x = start_x
         self.start_y = start_y
+        self.title = title
 
 
 class Prediction:
@@ -160,20 +162,62 @@ def merge_vertical(*imgs):
 
     return np.concatenate(padded)
 
-def merge(img_groups):
+def merge(left_explainer, img_groups):
+    titles = [i[0] for i in img_groups]
+    groups = [i[1] for i in img_groups]
+
     def pad_y(img, before, after):
         color = [(255, 255), (255, 255), (255, 255)]
         return np.pad(img, ((before, after), (0, 0), (0, 0)), mode='constant', constant_values=color)
 
-    max_y = max(max(i.start_y for i in group) for group in img_groups)
-    padded_groups = [[pad_y(i.img, max_y - i.start_y, 0) for i in g] for g in img_groups]
+    max_y = max(max(i.start_y for i in group) for group in groups)
+    padded_groups = [[pad_y(i.img, max_y - i.start_y, 0) for i in g] for g in groups]
 
     group_height = max(max(len(i) for i in group) for group in padded_groups)
     padded_groups = [[pad_y(i, 0, group_height - len(i)) for i in g] for g in padded_groups]
 
     imgs = [merge_vertical(*group) for group in padded_groups]
+    imgs = [add_header(img, title) for img, title in zip(imgs, titles)]
+
     height = max(len(i) for i in imgs)
-    return np.concatenate([pad_y(i, 0, height - len(i)) for i in imgs], axis=1)
+    plots = np.concatenate([pad_y(i, 0, height - len(i)) for i in imgs], axis=1)
+
+    # Make space for side-header (explainer)
+    color = [(255, 255), (255, 255), (255, 255)]
+    plots = np.pad(plots, ((0, 0), (50, 0), (0, 0)), mode='constant', constant_values=color)
+    for n, text in enumerate(left_explainer):
+        img = new_header(50, group_height, text)
+        print(img.height, img.width)
+        img = img.transpose(Image.ROTATE_90)
+        print(img.height, img.width)
+        pil_to_img(img, plots, start_xy=(0, n * group_height))
+
+    return plots
+
+
+def new_header(height, width, text):
+    pil_img = Image.new(mode='RGBA', size=(width, height), color=(255, 255, 255))
+    font = ImageFont.truetype("fonts/HelveticaNeue Medium.ttf", 25)
+
+    draw = ImageDraw.Draw(pil_img)
+    w, h = draw.textsize(text, font=font)
+    draw.multiline_text(((width-w)/2, (height-h)/2), text, (0,0,0), font=font)
+    return pil_img
+
+
+def pil_to_img(pil_img, img, start_xy=(0,0)):
+    for y in range(pil_img.height):
+        for x in range(pil_img.width):
+            img[start_xy[1]+y, start_xy[0]+x] = pil_img.getpixel((x, y))
+
+
+def add_header(img, text):
+    width = len(img[0])
+    height = 50
+    pil_img = new_header(height, width, text)
+    img = np.pad(img, ((height, 0), (0, 0), (0, 0)), mode='constant')
+    pil_to_img(pil_img, img)
+    return img
 
 
 def save(img, path):
