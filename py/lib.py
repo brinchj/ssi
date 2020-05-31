@@ -187,9 +187,7 @@ def merge(left_explainer, img_groups):
     plots = np.pad(plots, ((0, 0), (50, 0), (0, 0)), mode='constant', constant_values=color)
     for n, text in enumerate(left_explainer):
         img = new_header(50, group_height, text)
-        print(img.height, img.width)
         img = img.transpose(Image.ROTATE_90)
-        print(img.height, img.width)
         pil_to_img(img, plots, start_xy=(0, n * group_height + 25))
 
     return plots
