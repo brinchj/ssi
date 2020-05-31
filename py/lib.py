@@ -190,7 +190,7 @@ def merge(left_explainer, img_groups):
         print(img.height, img.width)
         img = img.transpose(Image.ROTATE_90)
         print(img.height, img.width)
-        pil_to_img(img, plots, start_xy=(0, n * group_height))
+        pil_to_img(img, plots, start_xy=(0, n * group_height + 25))
 
     return plots
 
