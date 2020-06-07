@@ -83,11 +83,11 @@ class Prediction:
     def scan(self, search_xy, step):
         def white(xy):
             x, y = xy
-            return (x, y), self.valid(x, y) and self.img[y, x][0] >= 200 and step(x, y)
+            return (x, y), self.img[y, x][0] >= 200 and step(x, y) if self.valid(x, y) else None
 
         def nonwhite(xy):
             x, y = xy
-            return (x, y), self.valid(x, y) and self.img[y, x][0] < 200 and step(x, y)
+            return (x, y), self.img[y, x][0] < 200 and step(x, y) if self.valid(x, y) else None
 
         lines = []
 
