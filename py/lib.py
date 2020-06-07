@@ -211,7 +211,7 @@ def pil_to_img(pil_img, img, start_xy=(0,0)):
 
 def add_header(img, text):
     width = len(img[0])
-    height = 50
+    height = 60
     pil_img = new_header(height, width, text)
     img = np.pad(img, ((height, 0), (0, 0), (0, 0)), mode='constant')
     pil_to_img(pil_img, img)

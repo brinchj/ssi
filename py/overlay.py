@@ -17,7 +17,7 @@ img2 = [
 ]
 
 days = 205  # [11 march; 01 october[
-title3 = 'Prognoser fra 20. maj 2020'
+title3 = 'Prognoser for fase 3 fra 20. maj 2020\n        (kun Region Hovestaden)'
 img3 = [
     lib.Prediction('reports/20200520/28.png', x_size=days, y_size=1500).process(1020, 1435),
     lib.Prediction('reports/20200520/29.png', x_size=days, y_size=1500).process( 990, 1414),
