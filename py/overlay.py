@@ -30,5 +30,5 @@ left_explainer = [
     'Adfærd som før corona'
 ]
 
-final = lib.merge(left_explainer, [(title1, img1), (title2, img2), (title3, img3)])
+final = lib.merge(left_explainer, [(title3, img3)])
 lib.save(lib.add_header(final, main_title), 'result.png')
