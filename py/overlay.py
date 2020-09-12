@@ -1,6 +1,6 @@
 import lib
 
-main_title = 'Den simulerede sygehusbelastning for alle indlagte (grå baggrund) og de observerede værdier (rød linje)'
+main_title = 'Den simulerede sygehusbelastning i antal indlagte (grå baggrund)\nog de observerede værdier (rød linje)'
 
 days = 112  # [11 march; 01 july[
 
@@ -25,8 +25,8 @@ img3 = [
 ]
 
 left_explainer = [
-    'Alle voksne overholder retningslinjerne',
-    'Halvdelen af voksne overholder retningslinjerne',
+    'Alle voksne\noverholder retningslinjerne',
+    'Halvdelen af voksne\noverholder retningslinjerne',
     'Adfærd som før corona'
 ]
 

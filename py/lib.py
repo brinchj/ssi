@@ -195,7 +195,7 @@ def merge(left_explainer, img_groups):
 
 def new_header(height, width, text):
     pil_img = Image.new(mode='RGBA', size=(width, height), color=(255, 255, 255))
-    font = ImageFont.truetype("fonts/HelveticaNeue Medium.ttf", 25)
+    font = ImageFont.truetype("fonts/HelveticaNeue Medium.ttf", 18)
 
     draw = ImageDraw.Draw(pil_img)
     w, h = draw.textsize(text, font=font)
