@@ -30,8 +30,11 @@ fn start_from_7d_avg(ts: &TimeSeries, date: &NaiveDate) -> i64 {
 }
 
 fn main() {
+    let start_date = NaiveDate::from_ymd(2020, 2, 1);
+
     let phase_1_end = NaiveDate::from_ymd(2021, 5, 1);
     let phase_2_end = NaiveDate::from_ymd(2021, 8, 1);
+    let phase_3_end = NaiveDate::from_ymd(2021, 11, 1);
 
     let vaccine_data = include_str!("../data/vacciner.csv");
     let smitte_data = include_str!("../data/Municipality_cases_time_series.csv");
@@ -43,18 +46,26 @@ fn main() {
         vaccine_data,
         last_column_only,
     )
+    .prepend(0, start_date, Duration::days(1))
     .accumulative()
     .future_goal(
         "Mål 1: Minimering af død og alvorlig sygdom",
-        phase_1_end,
+        NaiveDate::from_ymd(2021, 4, 1),
         1_500_000,
         chrono::Duration::days(1),
         start_from_7d_avg,
     )
     .future_goal(
         "Mål 2: Forebyggelse af smittespredning",
-        phase_2_end,
+        NaiveDate::from_ymd(2021, 8, 1),
         3_500_000,
+        chrono::Duration::days(1),
+        start_from_last,
+    )
+    .future_goal(
+        "Flok-immunitet",
+        NaiveDate::from_ymd(2021, 10, 1),
+        4_500_000,
         chrono::Duration::days(1),
         start_from_last,
     )
@@ -70,12 +81,20 @@ fn main() {
         smitte_data,
         sum_all_columns,
     )
+    .prepend(0, start_date, Duration::days(1))
     .future_goal(
         "Mål 2: Forebyggelse af smittespredning",
         phase_2_end,
-        0,
+        500,
         chrono::Duration::days(1),
         start_from_7d_avg,
+    )
+    .future_goal(
+        "Flok-immunitet",
+        phase_3_end,
+        0,
+        chrono::Duration::days(1),
+        start_from_last,
     )
     .plot(
         "smitte",
@@ -89,16 +108,24 @@ fn main() {
         indlagte_data,
         last_column_only,
     )
+    .prepend(0, start_date, Duration::days(1))
     .future_goal(
         "Mål 1: Minimering af død og alvorlig sygdom",
         phase_1_end,
-        0,
+        25,
         chrono::Duration::days(1),
         start_from_7d_avg,
     )
     .future_goal(
         "Mål 2: Forebyggelse af smittespredning",
         phase_2_end,
+        0,
+        chrono::Duration::days(1),
+        start_from_last,
+    )
+    .future_goal(
+        "Flok-immunitet",
+        phase_3_end,
         0,
         chrono::Duration::days(1),
         start_from_last,
@@ -115,6 +142,7 @@ fn main() {
         dode_data,
         last_column_only,
     )
+    .prepend(0, start_date, Duration::days(1))
     .future_goal(
         "Mål 1: Minimering af død og alvorlig sygdom",
         phase_1_end,
@@ -125,6 +153,13 @@ fn main() {
     .future_goal(
         "Mål 2: Forebyggelse af smittespredning",
         phase_2_end,
+        0,
+        chrono::Duration::days(1),
+        start_from_last,
+    )
+    .future_goal(
+        "Flok-immunitet",
+        phase_3_end,
         0,
         chrono::Duration::days(1),
         start_from_last,

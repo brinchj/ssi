@@ -64,6 +64,17 @@ impl TimeSeriesGroup {
         self.series.len()
     }
 
+    pub fn prepend(self, val: i64, start: NaiveDate, step: chrono::Duration) -> Self {
+        TimeSeriesGroup {
+            updated: self.updated,
+            series: self
+                .series
+                .into_iter()
+                .map(|ts| ts.prepend(val, start, step))
+                .collect(),
+        }
+    }
+
     pub fn future_goal(
         self,
         title: &str,
@@ -127,6 +138,21 @@ impl TimeSeries {
         TimeSeries {
             tags: self.tags,
             data,
+        }
+    }
+
+    pub fn prepend(self, val: i64, start: NaiveDate, step: chrono::Duration) -> Self {
+        let mut current = *self.data.keys().min().unwrap();
+        let mut new_points = im::OrdMap::new();
+
+        while current > start {
+            current -= step;
+            new_points.insert(current, val);
+        }
+
+        TimeSeries {
+            tags: self.tags,
+            data: new_points.union(self.data),
         }
     }
 }
