@@ -64,7 +64,7 @@ fn main() {
     )
     .future_goal(
         "Flok-immunitet",
-        NaiveDate::from_ymd(2021, 10, 1),
+        phase_3_end,
         4_500_000,
         chrono::Duration::days(1),
         start_from_last,
