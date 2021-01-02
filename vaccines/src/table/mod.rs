@@ -16,7 +16,7 @@ fn parse_date(s: &str) -> Option<NaiveDate> {
 }
 
 impl TimeSeriesGroup {
-    pub fn from_str(tags: im::OrdSet<String>, data: &str) -> Self {
+    pub fn from_str(tags: im::OrdSet<String>, data: &str, f: impl Fn(Vec<&str>) -> i64) -> Self {
         let mut points = im::OrdMap::new();
 
         for line in data.lines().skip(1) {
@@ -24,8 +24,8 @@ impl TimeSeriesGroup {
             let date = parse_date(it.next().unwrap());
 
             if let Some(d) = date {
-                let v = it.last().unwrap().trim();
-                points.insert(d, v.parse().unwrap());
+                let v = f(it.collect());
+                points.insert(d, v);
             }
         }
 
@@ -70,12 +70,12 @@ impl TimeSeriesGroup {
         date: NaiveDate,
         goal: i64,
         step: chrono::Duration,
+        start: impl Fn(&TimeSeries, &NaiveDate) -> i64,
     ) -> Self {
         let last_date = |ts: &TimeSeries| *ts.data.iter().last().unwrap().0;
         let final_date = self.series.iter().map(last_date).max().unwrap();
 
-        let datapoint = |ts: &TimeSeries| *ts.data.get(&final_date).unwrap_or(&0);
-        let final_sum: i64 = self.series.iter().map(datapoint).sum();
+        let final_sum: i64 = self.series.iter().map(|x| start(x, &final_date)).sum();
 
         let mut running_date = final_date;
         let all_days = (date - running_date).num_days();

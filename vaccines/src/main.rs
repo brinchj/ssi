@@ -4,23 +4,44 @@ extern crate horrorshow;
 use horrorshow::helper::doctype;
 use horrorshow::Template;
 
-use crate::table::TimeSeriesGroup;
-use chrono::NaiveDate;
+use crate::table::{TimeSeries, TimeSeriesGroup};
+use chrono::{Duration, NaiveDate};
 
 mod table;
 mod web;
+
+fn last_column_only(row: Vec<&str>) -> i64 {
+    row.last().unwrap().trim().parse().unwrap()
+}
+
+fn sum_all_columns(row: Vec<&str>) -> i64 {
+    row.iter().map(|c| c.trim().parse::<i64>().unwrap()).sum()
+}
+
+fn start_from_last(ts: &TimeSeries, date: &NaiveDate) -> i64 {
+    *ts.data.get(date).unwrap_or(&0)
+}
+
+fn start_from_7d_avg(ts: &TimeSeries, date: &NaiveDate) -> i64 {
+    (0..7)
+        .map(|d| ts.data.get(&(*date - Duration::days(d))).unwrap_or(&0))
+        .sum::<i64>()
+        / 7
+}
 
 fn main() {
     let phase_1_end = NaiveDate::from_ymd(2021, 5, 1);
     let phase_2_end = NaiveDate::from_ymd(2021, 8, 1);
 
     let vaccine_data = include_str!("../data/vacciner.csv");
-    let smitte_data = include_str!("../data/Newly_admitted_over_time.csv");
+    let smitte_data = include_str!("../data/Municipality_cases_time_series.csv");
+    let indlagte_data = include_str!("../data/Newly_admitted_over_time.csv");
     let dode_data = include_str!("../data/Deaths_over_time.csv");
 
     let vacciner = TimeSeriesGroup::from_str(
         vec!["Vaccinerede personer i alt".to_string()].into(),
         vaccine_data,
+        last_column_only,
     )
     .accumulative()
     .future_goal(
@@ -28,60 +49,92 @@ fn main() {
         phase_1_end,
         1_500_000,
         chrono::Duration::days(1),
+        start_from_7d_avg,
     )
     .future_goal(
         "Mål 2: Forebyggelse af smittespredning",
         phase_2_end,
         3_500_000,
         chrono::Duration::days(1),
+        start_from_last,
     )
     .plot(
         "vaccines",
         "Antal vaccinerede",
         "dag",
-        "Personer der har påbegyndt vaccination mod ny coronavirus i alt",
+        "Antal personer der har påbegyndt vaccination mod ny coronavirus i alt",
     );
 
-    let smitte =
-        TimeSeriesGroup::from_str(vec!["Nyindlagte per dag".to_string()].into(), smitte_data)
-            .future_goal(
-                "Mål 1: Minimering af død og alvorlig sygdom",
-                phase_1_end,
-                0,
-                chrono::Duration::days(1),
-            )
-            .future_goal(
-                "Mål 2: Forebyggelse af smittespredning",
-                phase_2_end,
-                0,
-                chrono::Duration::days(1),
-            )
-            .plot(
-                "indlagte",
-                "Antal indlagte",
-                "dag",
-                "Personer nyindskrevet med ny coronavirus per dag",
-            );
+    let smitte = TimeSeriesGroup::from_str(
+        vec!["Smittede per dag".to_string()].into(),
+        smitte_data,
+        sum_all_columns,
+    )
+    .future_goal(
+        "Mål 2: Forebyggelse af smittespredning",
+        phase_2_end,
+        0,
+        chrono::Duration::days(1),
+        start_from_7d_avg,
+    )
+    .plot(
+        "smitte",
+        "Antal smittede per dag",
+        "dag",
+        "Antal personer smittet med ny coronavirus per dag",
+    );
 
-    let dode = TimeSeriesGroup::from_str(vec!["Antal døde per dag".to_string()].into(), dode_data)
-        .future_goal(
-            "Mål 1: Minimering af død og alvorlig sygdom",
-            phase_1_end,
-            0,
-            chrono::Duration::days(1),
-        )
-        .future_goal(
-            "Mål 2: Forebyggelse af smittespredning",
-            phase_2_end,
-            0,
-            chrono::Duration::days(1),
-        )
-        .plot(
-            "dode",
-            "Antal døde",
-            "dag",
-            "Personer der er død med ny coronavirus per dag",
-        );
+    let indlagte = TimeSeriesGroup::from_str(
+        vec!["Nyindlagte per dag".to_string()].into(),
+        indlagte_data,
+        last_column_only,
+    )
+    .future_goal(
+        "Mål 1: Minimering af død og alvorlig sygdom",
+        phase_1_end,
+        0,
+        chrono::Duration::days(1),
+        start_from_7d_avg,
+    )
+    .future_goal(
+        "Mål 2: Forebyggelse af smittespredning",
+        phase_2_end,
+        0,
+        chrono::Duration::days(1),
+        start_from_last,
+    )
+    .plot(
+        "indlagte",
+        "Antal indlagte",
+        "dag",
+        "Personer nyindskrevet med ny coronavirus per dag",
+    );
+
+    let dode = TimeSeriesGroup::from_str(
+        vec!["Antal døde per dag".to_string()].into(),
+        dode_data,
+        last_column_only,
+    )
+    .future_goal(
+        "Mål 1: Minimering af død og alvorlig sygdom",
+        phase_1_end,
+        0,
+        chrono::Duration::days(1),
+        start_from_7d_avg,
+    )
+    .future_goal(
+        "Mål 2: Forebyggelse af smittespredning",
+        phase_2_end,
+        0,
+        chrono::Duration::days(1),
+        start_from_last,
+    )
+    .plot(
+        "dode",
+        "Antal døde",
+        "dag",
+        "Personer der er død med ny coronavirus per dag",
+    );
 
     let html = html! {
           : doctype::HTML;
@@ -117,6 +170,11 @@ fn main() {
                   div(class="row") {
                     div(class="col col-lg-12") {
                       : smitte
+                    }
+                  }
+                  div(class="row") {
+                    div(class="col col-lg-12") {
+                      : indlagte
                     }
                   }
                   div(class="row") {
