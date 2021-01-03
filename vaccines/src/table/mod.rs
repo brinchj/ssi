@@ -19,7 +19,7 @@ impl TimeSeriesGroup {
     pub fn from_str(tags: im::OrdSet<String>, data: &str, f: impl Fn(Vec<&str>) -> i64) -> Self {
         let mut points = im::OrdMap::new();
 
-        for line in data.lines().skip(1) {
+        for line in data.lines() {
             let mut it = line.split(';');
             let date = parse_date(it.next().unwrap());
 
