@@ -83,11 +83,18 @@ fn main() {
     )
     .prepend(0, start_date, Duration::days(1))
     .future_goal(
+        "Mål 1: Minimering af død og alvorlig sygdom",
+        phase_1_end,
+        1000,
+        chrono::Duration::days(1),
+        start_from_7d_avg,
+    )
+    .future_goal(
         "Mål 2: Forebyggelse af smittespredning",
         phase_2_end,
         500,
         chrono::Duration::days(1),
-        start_from_7d_avg,
+        start_from_last,
     )
     .future_goal(
         "Flok-immunitet",
@@ -204,7 +211,7 @@ fn main() {
                   }
                   div(class="row") {
                     div(class="col col-lg-12") {
-                      : smitte
+                      : dode
                     }
                   }
                   div(class="row") {
@@ -214,7 +221,7 @@ fn main() {
                   }
                   div(class="row") {
                     div(class="col col-lg-12") {
-                      : dode
+                      : smitte
                     }
                   }
                 }
