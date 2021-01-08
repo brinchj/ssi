@@ -51,7 +51,7 @@ fn main() {
     .future_goal(
         "Mål 1: Minimering af død og alvorlig sygdom",
         NaiveDate::from_ymd(2021, 4, 1),
-        1_500_000,
+        1_400_000,
         chrono::Duration::days(1),
         start_from_7d_avg,
     )
