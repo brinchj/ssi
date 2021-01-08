@@ -280,8 +280,14 @@ fn main() {
                       }
                     }
                   }
+                  hr {}
+                  div(class="row") {
+                    a(href="https://github.com/brinchj/ssi/tree/master/vaccines", target="_blank") {
+                      : "Kildekode på Github"
+                    }
+                  }
                 }
-             }
+              }
             }
     };
 
