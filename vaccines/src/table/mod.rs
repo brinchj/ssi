@@ -75,6 +75,25 @@ impl TimeSeriesGroup {
         }
     }
 
+    pub fn future_goal_extrapolate(
+        self,
+        title: &str,
+        goal: i64,
+        step: chrono::Duration,
+        speed: impl Fn(&TimeSeries, &NaiveDate) -> i64,
+        start: impl Fn(&TimeSeries, &NaiveDate) -> i64,
+        end_date_out: &mut NaiveDate
+    ) -> Self {
+        let last_date = |ts: &TimeSeries| *ts.data.iter().last().unwrap().0;
+        let final_date = self.series.iter().map(last_date).max().unwrap();
+        let final_speed: i64 = self.series.iter().map(|x| speed(x, &final_date)).sum();
+        let final_sum: i64 = self.series.iter().map(|x| start(x, &final_date)).sum();
+
+        *end_date_out = final_date + step * ((goal - final_sum) / final_speed) as i32;
+
+        return self.future_goal(title, *end_date_out, goal, step, start)
+    }
+
     pub fn future_goal(
         self,
         title: &str,

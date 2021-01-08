@@ -29,12 +29,17 @@ fn start_from_7d_avg(ts: &TimeSeries, date: &NaiveDate) -> i64 {
         / 7
 }
 
+fn delta_7d_avg(ts: &TimeSeries, date: &NaiveDate) -> i64 {
+    (ts.data.get(&(*date - Duration::days(1))).unwrap_or(&0)
+    - ts.data.get(&(*date - Duration::days(8))).unwrap_or(&0)) / 7
+}
+
 fn main() {
     let start_date = NaiveDate::from_ymd(2020, 2, 1);
 
-    let phase_1_end = NaiveDate::from_ymd(2021, 5, 1);
-    let phase_2_end = NaiveDate::from_ymd(2021, 8, 1);
-    let phase_3_end = NaiveDate::from_ymd(2021, 11, 1);
+    let mut phase_1_end = NaiveDate::from_ymd(2021, 5, 1);
+    let mut phase_2_end = NaiveDate::from_ymd(2021, 8, 1);
+    let mut phase_3_end = NaiveDate::from_ymd(2021, 11, 1);
 
     let vaccine_data = include_str!("../data/vacciner.csv");
     let smitte_data = include_str!("../data/Municipality_cases_time_series.csv");
@@ -48,26 +53,29 @@ fn main() {
     )
     .prepend(0, start_date, Duration::days(1))
     .accumulative()
-    .future_goal(
+    .future_goal_extrapolate(
         "Mål 1: Minimering af død og alvorlig sygdom",
-        NaiveDate::from_ymd(2021, 4, 1),
         1_400_000,
         chrono::Duration::days(1),
+        delta_7d_avg,
         start_from_7d_avg,
+        &mut phase_1_end
     )
-    .future_goal(
+    .future_goal_extrapolate(
         "Mål 2: Forebyggelse af smittespredning",
-        NaiveDate::from_ymd(2021, 8, 1),
         3_500_000,
         chrono::Duration::days(1),
+        delta_7d_avg,
         start_from_last,
+        &mut phase_2_end
     )
-    .future_goal(
+    .future_goal_extrapolate(
         "Flok-immunitet",
-        phase_3_end,
         4_500_000,
         chrono::Duration::days(1),
+        delta_7d_avg,
         start_from_last,
+        &mut phase_3_end
     )
     .plot(
         "vaccines",
@@ -213,7 +221,7 @@ fn main() {
                     div(class="col col-lg-12") {
                       blockquote(class="blockquote lead") {
                         span(class="mb-0") {
-                          : "Min tidslinje og udvikling er baseret på hvad jeg ved og mit personlige håb om flok-immunitet inden næste vinter. Det er ikke forudsigelser eller prognoser. Og det er nok nogle meget ambitiøse mål. "
+                          : "Min tidslinje og udvikling er baseret på videreførelse af sidste 7 dages trend. Det er ikke forudsigelser eller prognoser. "
                         }
                         span(class="mb-0") {
                           : "Vi kan ikke forudsige hvor mange vaccinedoser vi kommer til at modtage og hvornår. "
