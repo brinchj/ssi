@@ -209,19 +209,75 @@ fn main() {
                       : vacciner
                     }
                   }
+                  div(class="row mt-1") {
+                    div(class="col col-lg-12") {
+                      blockquote(class="blockquote lead") {
+                        span(class="mb-0") {
+                          : "Min tidslinje og udvikling er baseret på hvad jeg ved og mit personlige håb om flok-immunitet inden næste vinter. Det er ikke forudsigelser eller prognoser. Og det er nok nogle meget ambitiøse mål. "
+                        }
+                        span(class="mb-0") {
+                          : "Vi kan ikke forudsige hvor mange vaccinedoser vi kommer til at modtage og hvornår. "
+                        }
+                        span(class="mb-0") {
+                          : "Jeg ved, at vaccinationsprogrammets første mål er at "
+                        }
+                        span(class="mb-0") {
+                          a(href="") {
+                            : "mindske død og alvorlig sygdom ved vaccination af ~1.4 mio sårbare danskere"
+                          }
+                        }
+                        span(class="mb-0") {
+                          : ". Selvom denne gruppe prioriteres vil nogle vaccinedoser nok blive brugt til andre grupper, f.eks. personale på hospitaler. "
+                        }
+                        span(class="mb-0") {
+                          a(href="https://www.dr.dk/nyheder/indland/forskere-advarer-om-ny-mutation-herhjemme-skraekscenariet-er-en-pandemi-ude-af", target="_blank")
+                          : "Det ser ud til, at vi forhåbentlig kan opnå flok-immutet og stoppe smitten, når vi har vaccineret 60-80%, altså 3.5-4.5 mio danskere. "
+                        }
+                        footer(class="blockquote-footer text-right") {
+                          : "Johan Brinch (mig, datalog, amatør, nørd), januar 2021"
+                        }
+                      }
+                    }
+                  }
+                  hr {}
                   div(class="row") {
                     div(class="col col-lg-12") {
                       : dode
                     }
                   }
+                  div(class="row mt-1") {
+                    div(class="col col-lg-12") {
+                      blockquote(class="blockquote lead") {
+                        p(class="mb-0") {
+                          : "Danmark prioriterer mindre død og alvorlig sygdom. Effekten af vaccination bliver nok ikke en lige linje som vist, men en anden form for løbende udvikling. Det bliver interessant at se den virkelige udvikling. Niveauet af smitte i samfundet afhænger i høj grad også af samfundsaktiviteten og virussens evne til at sprede sig."
+                        }
+                      }
+                    }
+                  }
+                  hr {}
                   div(class="row") {
                     div(class="col col-lg-12") {
                       : indlagte
                     }
                   }
+                  div(class="row mt-1") {
+                    div(class="col col-lg-12") {
+                      blockquote(class="blockquote lead") {
+                        p(class="mb-0") {
+                          : "Jeg forventer at se et markant dyk i indlæggelser, når vi har vaccineret de mest sårbare danskere."
+                        }
+                      }
+                    }
+                  }
+                  hr {}
                   div(class="row") {
                     div(class="col col-lg-12") {
                       : smitte
+                    }
+                    blockquote(class="blockquote lead") {
+                      p(class="mb-0") {
+                        : "Jeg forventer først at se et markant dyk i antal smittede, når vi har vaccineret 60-80% af danskerne. Husk på, at samfundsaktivitet og vores opførsel også i høj grad driver smitten. Så vejen bliver ikke en lige linje i virkeligheden."
+                      }
                     }
                   }
                 }
