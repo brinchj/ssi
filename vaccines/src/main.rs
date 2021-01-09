@@ -58,7 +58,7 @@ fn main() {
         1_400_000,
         chrono::Duration::days(1),
         delta_7d_avg,
-        start_from_7d_avg,
+        start_from_last,
         &mut phase_1_end
     )
     .future_goal_extrapolate(
