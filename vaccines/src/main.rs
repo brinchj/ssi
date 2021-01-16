@@ -30,8 +30,8 @@ fn start_from_7d_avg(ts: &TimeSeries, date: &NaiveDate) -> i64 {
 }
 
 fn delta_7d_avg(ts: &TimeSeries, date: &NaiveDate) -> i64 {
-    (ts.data.get(&(*date - Duration::days(1))).unwrap_or(&0)
-    - ts.data.get(&(*date - Duration::days(8))).unwrap_or(&0)) / 7
+    let day = |delta| ts.data.get(&(*date - delta)).unwrap_or(&0);
+    [day(Duration::days(0)) - day(Duration::days(7)), day(Duration::days(1)) - day(Duration::days(8))].iter().max().unwrap() / 7
 }
 
 fn main() {
