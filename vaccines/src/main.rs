@@ -31,7 +31,14 @@ fn start_from_7d_avg(ts: &TimeSeries, date: &NaiveDate) -> i64 {
 
 fn delta_7d_avg(ts: &TimeSeries, date: &NaiveDate) -> i64 {
     let day = |delta| ts.data.get(&(*date - delta)).unwrap_or(&0);
-    [day(Duration::days(0)) - day(Duration::days(7)), day(Duration::days(1)) - day(Duration::days(8))].iter().max().unwrap() / 7
+    [
+        day(Duration::days(0)) - day(Duration::days(7)),
+        day(Duration::days(1)) - day(Duration::days(8)),
+    ]
+    .iter()
+    .max()
+    .unwrap()
+        / 7
 }
 
 fn main() {
@@ -59,7 +66,7 @@ fn main() {
         chrono::Duration::days(1),
         delta_7d_avg,
         start_from_last,
-        &mut phase_1_end
+        &mut phase_1_end,
     )
     .future_goal_extrapolate(
         "Mål 2: Forebyggelse af smittespredning",
@@ -67,7 +74,7 @@ fn main() {
         chrono::Duration::days(1),
         delta_7d_avg,
         start_from_last,
-        &mut phase_2_end
+        &mut phase_2_end,
     )
     .future_goal_extrapolate(
         "Flok-immunitet",
@@ -75,7 +82,7 @@ fn main() {
         chrono::Duration::days(1),
         delta_7d_avg,
         start_from_last,
-        &mut phase_3_end
+        &mut phase_3_end,
     )
     .plot(
         "vaccines",

@@ -82,7 +82,7 @@ impl TimeSeriesGroup {
         step: chrono::Duration,
         speed: impl Fn(&TimeSeries, &NaiveDate) -> i64,
         start: impl Fn(&TimeSeries, &NaiveDate) -> i64,
-        end_date_out: &mut NaiveDate
+        end_date_out: &mut NaiveDate,
     ) -> Self {
         let last_date = |ts: &TimeSeries| *ts.data.iter().last().unwrap().0;
         let final_date = self.series.iter().map(last_date).max().unwrap();
@@ -91,7 +91,7 @@ impl TimeSeriesGroup {
 
         *end_date_out = final_date + step * ((goal - final_sum) / final_speed) as i32;
 
-        return self.future_goal(title, *end_date_out, goal, step, start)
+        return self.future_goal(title, *end_date_out, goal, step, start);
     }
 
     pub fn future_goal(
