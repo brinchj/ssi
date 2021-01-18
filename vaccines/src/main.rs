@@ -122,7 +122,7 @@ fn main() {
     .future_goal(
         "Mål 1: Minimering af død og alvorlig sygdom",
         phase_1_end,
-        1000,
+        100,
         chrono::Duration::days(1),
         start_from_7d_avg,
     )
