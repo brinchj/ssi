@@ -16,24 +16,11 @@ fn parse_date(s: &str) -> Option<NaiveDate> {
 }
 
 impl TimeSeriesGroup {
-    pub fn from_str(tags: im::OrdSet<String>, data: &str, f: impl Fn(Vec<&str>) -> i64) -> Self {
-        let mut points = im::OrdMap::new();
-
-        for line in data.lines() {
-            let mut it = line.split(';');
-            let date = parse_date(it.next().unwrap());
-
-            if let Some(d) = date {
-                let v = f(it.collect());
-                points.insert(d, v);
-            }
-        }
-
-        let max_date = points.keys().max().unwrap();
-        let updated = DateTime::from_utc(max_date.and_hms(0, 0, 0), Utc);
+    pub fn new(series: Vec<TimeSeries>) -> Self {
+        let max_date = *series.iter().map(|ts| ts.latest_date()).max().unwrap();
         TimeSeriesGroup {
-            updated,
-            series: vec![TimeSeries::new(tags, points)],
+            updated: DateTime::from_utc(max_date.and_hms(0, 0, 0), Utc),
+            series,
         }
     }
 
@@ -144,6 +131,26 @@ pub struct TimeSeries {
 impl TimeSeries {
     pub fn new(tags: im::OrdSet<String>, data: im::OrdMap<NaiveDate, i64>) -> TimeSeries {
         TimeSeries { tags, data }
+    }
+
+    pub fn from_str(tags: im::OrdSet<String>, data: &str, f: impl Fn(Vec<&str>) -> i64) -> Self {
+        let mut points = im::OrdMap::new();
+
+        for line in data.lines() {
+            let mut it = line.split(';');
+            let date = parse_date(it.next().unwrap());
+
+            if let Some(d) = date {
+                let v = f(it.collect());
+                points.insert(d, v);
+            }
+        }
+
+        Self::new(tags, points)
+    }
+
+    pub fn latest_date(&self) -> &NaiveDate {
+        self.data.keys().max().unwrap()
     }
 
     pub fn accumulative(self) -> Self {

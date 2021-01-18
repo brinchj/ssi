@@ -53,11 +53,11 @@ fn main() {
     let indlagte_data = include_str!("../data/Newly_admitted_over_time.csv");
     let dode_data = include_str!("../data/Deaths_over_time.csv");
 
-    let vacciner = TimeSeriesGroup::from_str(
+    let vacciner = TimeSeriesGroup::new(vec![TimeSeries::from_str(
         vec!["Vaccinerede personer i alt".to_string()].into(),
         vaccine_data,
         last_column_only,
-    )
+    )])
     .prepend(0, start_date, Duration::days(1))
     .accumulative()
     .future_goal_extrapolate(
@@ -91,11 +91,11 @@ fn main() {
         "Antal personer der har påbegyndt vaccination mod ny coronavirus i alt",
     );
 
-    let smitte = TimeSeriesGroup::from_str(
+    let smitte = TimeSeriesGroup::new(vec![TimeSeries::from_str(
         vec!["Smittede per dag".to_string()].into(),
         smitte_data,
         sum_all_columns,
-    )
+    )])
     .prepend(0, start_date, Duration::days(1))
     .future_goal(
         "Mål 1: Minimering af død og alvorlig sygdom",
@@ -125,11 +125,11 @@ fn main() {
         "Antal personer smittet med ny coronavirus per dag",
     );
 
-    let indlagte = TimeSeriesGroup::from_str(
+    let indlagte = TimeSeriesGroup::new(vec![TimeSeries::from_str(
         vec!["Nyindlagte per dag".to_string()].into(),
         indlagte_data,
         last_column_only,
-    )
+    )])
     .prepend(0, start_date, Duration::days(1))
     .future_goal(
         "Mål 1: Minimering af død og alvorlig sygdom",
@@ -159,11 +159,11 @@ fn main() {
         "Personer nyindskrevet med ny coronavirus per dag",
     );
 
-    let dode = TimeSeriesGroup::from_str(
+    let dode = TimeSeriesGroup::new(vec![TimeSeries::from_str(
         vec!["Antal døde per dag".to_string()].into(),
         dode_data,
         last_column_only,
-    )
+    )])
     .prepend(0, start_date, Duration::days(1))
     .future_goal(
         "Mål 1: Minimering af død og alvorlig sygdom",
