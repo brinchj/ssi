@@ -10,7 +10,11 @@ use chrono::{Duration, NaiveDate};
 mod table;
 mod web;
 
-fn last_column_only(row: Vec<&str>) -> i64 {
+fn nth_column(n: usize, row: Vec<&str>) -> i64 {
+    row[n].trim().parse().unwrap()
+}
+
+fn last_column(row: Vec<&str>) -> i64 {
     row.last().unwrap().trim().parse().unwrap()
 }
 
@@ -53,43 +57,61 @@ fn main() {
     let indlagte_data = include_str!("../data/Newly_admitted_over_time.csv");
     let dode_data = include_str!("../data/Deaths_over_time.csv");
 
-    let vacciner = TimeSeriesGroup::new(vec![TimeSeries::from_str(
-        vec!["Vaccinerede personer i alt".to_string()].into(),
+    // People who have started vaccination.
+    let vac_started = TimeSeries::from_str(
+        vec!["Personer igang med vaccination".to_string()].into(),
         vaccine_data,
-        last_column_only,
-    )])
-    .prepend(0, start_date, Duration::days(1))
-    .accumulative()
-    .future_goal_extrapolate(
-        "Mål 1: Minimering af død og alvorlig sygdom",
-        1_400_000,
-        chrono::Duration::days(1),
-        delta_7d_avg,
-        start_from_last,
-        &mut phase_1_end,
-    )
-    .future_goal_extrapolate(
-        "Mål 2: Forebyggelse af smittespredning",
-        3_500_000,
-        chrono::Duration::days(1),
-        delta_7d_avg,
-        start_from_last,
-        &mut phase_2_end,
-    )
-    .future_goal_extrapolate(
-        "Flok-immunitet",
-        4_500_000,
-        chrono::Duration::days(1),
-        delta_7d_avg,
-        start_from_last,
-        &mut phase_3_end,
-    )
-    .plot(
-        "vaccines",
-        "Antal vaccinerede",
-        "dag",
-        "Antal personer der har påbegyndt vaccination mod ny coronavirus i alt",
+        |r| nth_column(0, r),
     );
+
+    // People who have started and completed vaccination.
+    let vac_done = TimeSeries::from_str(
+        vec!["Personer færdigvaccineret".to_string()].into(),
+        vaccine_data,
+        |r| nth_column(1, r),
+    );
+
+    // Do not count someone `done` as `started`. Every person is counted only once.
+    let vac_only_started = TimeSeries::new(
+        vac_started.tags.clone(),
+        vac_started
+            .data
+            .union_with(vac_done.data.clone(), std::ops::Sub::sub),
+    );
+
+    let vacciner = TimeSeriesGroup::new(vec![vac_only_started, vac_done])
+        .prepend(0, start_date, Duration::days(1))
+        .accumulative()
+        .future_goal_extrapolate(
+            "Mål 1: Nedbring død og alvorlig sygdom",
+            1_400_000,
+            chrono::Duration::days(1),
+            delta_7d_avg,
+            start_from_last,
+            &mut phase_1_end,
+        )
+        .future_goal_extrapolate(
+            "Mål 2: Forebyg smittespredning",
+            3_500_000,
+            chrono::Duration::days(1),
+            delta_7d_avg,
+            start_from_last,
+            &mut phase_2_end,
+        )
+        .future_goal_extrapolate(
+            "Flok-immunitet",
+            4_500_000,
+            chrono::Duration::days(1),
+            delta_7d_avg,
+            start_from_last,
+            &mut phase_3_end,
+        )
+        .plot(
+            "vaccines",
+            "Antal vaccinerede",
+            "dag",
+            "Antal personer vaccineret mod ny coronavirus i alt",
+        );
 
     let smitte = TimeSeriesGroup::new(vec![TimeSeries::from_str(
         vec!["Smittede per dag".to_string()].into(),
@@ -128,7 +150,7 @@ fn main() {
     let indlagte = TimeSeriesGroup::new(vec![TimeSeries::from_str(
         vec!["Nyindlagte per dag".to_string()].into(),
         indlagte_data,
-        last_column_only,
+        last_column,
     )])
     .prepend(0, start_date, Duration::days(1))
     .future_goal(
@@ -162,7 +184,7 @@ fn main() {
     let dode = TimeSeriesGroup::new(vec![TimeSeries::from_str(
         vec!["Antal døde per dag".to_string()].into(),
         dode_data,
-        last_column_only,
+        last_column,
     )])
     .prepend(0, start_date, Duration::days(1))
     .future_goal(
