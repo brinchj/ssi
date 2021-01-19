@@ -62,6 +62,13 @@ impl TimeSeriesGroup {
         }
     }
 
+    pub fn last_sum(&self, start: impl Fn(&TimeSeries, &NaiveDate) -> i64) -> (NaiveDate, i64) {
+        let last_date = |ts: &TimeSeries| *ts.data.iter().last().unwrap().0;
+        let final_date = self.series.iter().map(last_date).max().unwrap();
+        let final_sum: i64 = self.series.iter().map(|x| start(x, &final_date)).sum();
+        (final_date, final_sum)
+    }
+
     pub fn future_goal_extrapolate(
         self,
         title: &str,
@@ -71,10 +78,8 @@ impl TimeSeriesGroup {
         start: impl Fn(&TimeSeries, &NaiveDate) -> i64,
         end_date_out: &mut NaiveDate,
     ) -> Self {
-        let last_date = |ts: &TimeSeries| *ts.data.iter().last().unwrap().0;
-        let final_date = self.series.iter().map(last_date).max().unwrap();
+        let (final_date, final_sum) = self.last_sum(&start);
         let final_speed: i64 = self.series.iter().map(|x| speed(x, &final_date)).sum();
-        let final_sum: i64 = self.series.iter().map(|x| start(x, &final_date)).sum();
 
         *end_date_out = final_date + step * ((goal - final_sum) / final_speed) as i32;
 
@@ -89,10 +94,7 @@ impl TimeSeriesGroup {
         step: chrono::Duration,
         start: impl Fn(&TimeSeries, &NaiveDate) -> i64,
     ) -> Self {
-        let last_date = |ts: &TimeSeries| *ts.data.iter().last().unwrap().0;
-        let final_date = self.series.iter().map(last_date).max().unwrap();
-
-        let final_sum: i64 = self.series.iter().map(|x| start(x, &final_date)).sum();
+        let (final_date, final_sum) = self.last_sum(&start);
 
         let mut running_date = final_date;
         let all_days = (date - running_date).num_days();
