@@ -48,9 +48,17 @@ fn delta_7d_avg(ts: &TimeSeries, date: &NaiveDate) -> i64 {
 fn main() {
     let start_date = NaiveDate::from_ymd(2020, 2, 1);
 
+    let phase_1 = 1_400_000;
+    let phase_2 = 3_500_000;
+    let phase_3 = 4_500_000;
+
+    // Updated by extrapolation when setting up `vacciner` timeseries.
     let mut phase_1_end = NaiveDate::from_ymd(2021, 5, 1);
     let mut phase_2_end = NaiveDate::from_ymd(2021, 8, 1);
     let mut phase_3_end = NaiveDate::from_ymd(2021, 11, 1);
+
+    // Updated below after extrapolation when setting up `vacciner` timeseries.
+    let mut vaccinations_so_far = 0;
 
     let vaccine_data = include_str!("../data/vacciner.csv");
     let smitte_data = include_str!("../data/Municipality_cases_time_series.csv");
@@ -82,9 +90,10 @@ fn main() {
     let vacciner = TimeSeriesGroup::new(vec![vac_only_started, vac_done])
         .prepend(0, start_date, Duration::days(1))
         .accumulative()
+        .out_last_sum(&mut vaccinations_so_far)
         .future_goal_extrapolate(
             "Mål 1: Nedbring død og alvorlig sygdom",
-            1_400_000,
+            phase_1,
             chrono::Duration::days(1),
             delta_7d_avg,
             start_from_last,
@@ -92,7 +101,7 @@ fn main() {
         )
         .future_goal_extrapolate(
             "Mål 2: Forebyg smittespredning",
-            3_500_000,
+            phase_2,
             chrono::Duration::days(1),
             delta_7d_avg,
             start_from_last,
@@ -100,7 +109,7 @@ fn main() {
         )
         .future_goal_extrapolate(
             "Flok-immunitet",
-            4_500_000,
+            phase_3,
             chrono::Duration::days(1),
             delta_7d_avg,
             start_from_last,
@@ -113,6 +122,14 @@ fn main() {
             "Antal personer vaccineret mod ny coronavirus i alt",
         );
 
+    // Update progress using new information on total vaccinations
+    let calc_progress = |i: i64, n: i64| if i >= n { 1.0 } else { i as f64 / n as f64 };
+    let phase_1_progress = calc_progress(vaccinations_so_far, phase_1);
+    let phase_2_progress = calc_progress(vaccinations_so_far, phase_2);
+    let phase_3_progress = calc_progress(vaccinations_so_far, phase_3);
+
+    let calc_goal = |now, target_pct, progress| *[now, (now as f64 * (target_pct + progress - target_pct * progress)) as i64].iter().min().unwrap();
+
     let smitte = TimeSeriesGroup::new(vec![TimeSeries::from_str(
         vec!["Smittede per dag".to_string()].into(),
         smitte_data,
@@ -122,21 +139,21 @@ fn main() {
     .future_goal(
         "Mål 1: Minimering af død og alvorlig sygdom",
         phase_1_end,
-        250,
+        |now| calc_goal(now, 0.75, phase_1_progress),
         chrono::Duration::days(1),
         start_from_7d_avg,
     )
     .future_goal(
         "Mål 2: Forebyggelse af smittespredning",
         phase_2_end,
-        100,
+        |now| calc_goal(now, 0.4, phase_2_progress),
         chrono::Duration::days(1),
         start_from_last,
     )
     .future_goal(
         "Flok-immunitet",
         phase_3_end,
-        0,
+        |now| calc_goal(now, 0.0, phase_3_progress),
         chrono::Duration::days(1),
         start_from_last,
     )
@@ -156,21 +173,21 @@ fn main() {
     .future_goal(
         "Mål 1: Minimering af død og alvorlig sygdom",
         phase_1_end,
-        25,
+        |now| calc_goal(now, 0.2, phase_1_progress),
         chrono::Duration::days(1),
         start_from_7d_avg,
     )
     .future_goal(
         "Mål 2: Forebyggelse af smittespredning",
         phase_2_end,
-        0,
+        |now| calc_goal(now, 0.0, phase_2_progress),
         chrono::Duration::days(1),
         start_from_last,
     )
     .future_goal(
         "Flok-immunitet",
         phase_3_end,
-        0,
+        |now| calc_goal(now, 0.0, phase_3_progress),
         chrono::Duration::days(1),
         start_from_last,
     )
@@ -190,21 +207,21 @@ fn main() {
     .future_goal(
         "Mål 1: Minimering af død og alvorlig sygdom",
         phase_1_end,
-        0,
+        |now| calc_goal(now, 0.0, phase_1_progress),
         chrono::Duration::days(1),
         start_from_7d_avg,
     )
     .future_goal(
         "Mål 2: Forebyggelse af smittespredning",
         phase_2_end,
-        0,
+        |now| calc_goal(now, 0.0, phase_2_progress),
         chrono::Duration::days(1),
         start_from_last,
     )
     .future_goal(
         "Flok-immunitet",
         phase_3_end,
-        0,
+        |now| calc_goal(now, 0.0, phase_3_progress),
         chrono::Duration::days(1),
         start_from_last,
     )
