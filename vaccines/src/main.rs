@@ -67,7 +67,7 @@ fn main() {
 
     // People who have started vaccination.
     let vac_started = TimeSeries::from_str(
-        vec!["Personer igang med vaccination".to_string()].into(),
+        vec!["Personer med 1 af 2 stik".to_string()].into(),
         vaccine_data,
         |r| nth_column(0, r),
     );
