@@ -87,7 +87,7 @@ fn main() {
             .union_with(vac_done.data.clone(), std::ops::Sub::sub),
     );
 
-    let vacciner = TimeSeriesGroup::new(vec![vac_only_started, vac_done])
+    let vacciner = TimeSeriesGroup::new(vec![vac_done, vac_only_started])
         .prepend(0, start_date, Duration::days(1))
         .accumulative()
         .out_last_sum(&mut vaccinations_so_far)
