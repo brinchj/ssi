@@ -36,13 +36,13 @@ fn start_from_7d_avg(ts: &TimeSeries, date: &NaiveDate) -> i64 {
 fn delta_7d_avg(ts: &TimeSeries, date: &NaiveDate) -> i64 {
     let day = |delta| ts.data.get(&(*date - delta)).unwrap_or(&0);
     [
-        day(Duration::days(0)) - day(Duration::days(7)),
-        day(Duration::days(1)) - day(Duration::days(8)),
+        day(Duration::days(0)) - day(Duration::days(28)),
+        day(Duration::days(1)) - day(Duration::days(29)),
     ]
     .iter()
     .max()
     .unwrap()
-        / 7
+        / 28
 }
 
 fn main() {
@@ -267,7 +267,7 @@ fn main() {
                     div(class="col col-lg-12") {
                       blockquote(class="blockquote lead") {
                         span(class="mb-0") {
-                          : "Min tidslinje og udvikling er baseret på videreførelse af sidste 7 dages trend. Det er ikke forudsigelser eller prognoser. "
+                          : "Min tidslinje og udvikling er baseret på videreførelse af de sidste 4 ugers trend. Det er ikke forudsigelser eller prognoser. "
                         }
                         span(class="mb-0") {
                           : "Vi kan ikke forudsige hvor mange vaccinedoser vi kommer til at modtage og hvornår. "
