@@ -33,16 +33,17 @@ fn start_from_7d_avg(ts: &TimeSeries, date: &NaiveDate) -> i64 {
         / 7
 }
 
-fn delta_7d_avg(ts: &TimeSeries, date: &NaiveDate) -> i64 {
+fn delta_6weeks_avg(ts: &TimeSeries, date: &NaiveDate) -> i64 {
+    let days = 6 * 7;
     let day = |delta| ts.data.get(&(*date - delta)).unwrap_or(&0);
     [
-        day(Duration::days(0)) - day(Duration::days(28)),
-        day(Duration::days(1)) - day(Duration::days(29)),
+        day(Duration::days(0)) - day(Duration::days(days)),
+        day(Duration::days(1)) - day(Duration::days(days + 1)),
     ]
     .iter()
     .max()
     .unwrap()
-        / 28
+        / days
 }
 
 fn main() {
@@ -95,7 +96,7 @@ fn main() {
             "Mål 1: Nedbring død og alvorlig sygdom",
             phase_1,
             chrono::Duration::days(1),
-            delta_7d_avg,
+            delta_6weeks_avg,
             start_from_last,
             &mut phase_1_end,
         )
@@ -103,7 +104,7 @@ fn main() {
             "Mål 2: Forebyg smittespredning",
             phase_2,
             chrono::Duration::days(1),
-            delta_7d_avg,
+            delta_6weeks_avg,
             start_from_last,
             &mut phase_2_end,
         )
@@ -111,7 +112,7 @@ fn main() {
             "Flok-immunitet",
             phase_3,
             chrono::Duration::days(1),
-            delta_7d_avg,
+            delta_6weeks_avg,
             start_from_last,
             &mut phase_3_end,
         )
@@ -267,7 +268,7 @@ fn main() {
                     div(class="col col-lg-12") {
                       blockquote(class="blockquote lead") {
                         span(class="mb-0") {
-                          : "Min tidslinje og udvikling er baseret på videreførelse af de sidste 4 ugers trend. Det er ikke forudsigelser eller prognoser. "
+                          : "Min tidslinje og udvikling er baseret på videreførelse af de sidste 6 ugers trend. Det er ikke forudsigelser eller prognoser. "
                         }
                         span(class="mb-0") {
                           : "Vi kan ikke forudsige hvor mange vaccinedoser vi kommer til at modtage og hvornår. "
