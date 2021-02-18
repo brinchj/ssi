@@ -14,7 +14,7 @@ def fix_date(d):
 
 def app():
   subprocess.Popen(
-      ['gs', '-sDEVICE=txtwrite', '-dNOPAUSE', '-dSAFER', '-o', 'vacciner.txt', 'vaccinationstilslutning.pdf'],
+      ['gs', '-sDEVICE=txtwrite', '-dNOPAUSE', '-dSAFER', '-sOutputFile=vacciner.txt', 'vaccinationstilslutning.pdf'],
       stdout=subprocess.PIPE
     )
 
