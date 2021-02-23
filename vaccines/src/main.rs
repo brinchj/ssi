@@ -61,7 +61,10 @@ fn main() {
     // Updated below after extrapolation when setting up `vacciner` timeseries.
     let mut vaccinations_so_far = 0;
 
-    let vaccine_data = include_str!("../data/vacciner.csv");
+    let vaccine_started_data =
+        include_bytes!("../data/ArcGIS_dashboards_data/Vaccine_DB/FoersteVacc_region_dag.csv");
+    let vaccine_done_data =
+        include_bytes!("../data/ArcGIS_dashboards_data/Vaccine_DB/FaerdigVacc_region_dag.csv");
     let smitte_data = include_str!("../data/Municipality_cases_time_series.csv");
     let indlagte_data = include_str!("../data/Newly_admitted_over_time.csv");
     let dode_data = include_str!("../data/Deaths_over_time.csv");
@@ -69,15 +72,15 @@ fn main() {
     // People who have started vaccination.
     let vac_started = TimeSeries::from_str(
         vec!["Personer med 1 af 2 stik".to_string()].into(),
-        vaccine_data,
-        |r| nth_column(0, r),
+        String::from_utf8_lossy(&vaccine_started_data[..]).as_ref(),
+        |r| nth_column(2, r),
     );
 
     // People who have started and completed vaccination.
     let vac_done = TimeSeries::from_str(
         vec!["Færdigvaccinerede".to_string()].into(),
-        vaccine_data,
-        |r| nth_column(1, r),
+        String::from_utf8_lossy(&vaccine_done_data[..]).as_ref(),
+        |r| nth_column(2, r),
     );
 
     // Do not count someone `done` as `started`. Every person is counted only once.
@@ -129,7 +132,15 @@ fn main() {
     let phase_2_progress = calc_progress(vaccinations_so_far, phase_2);
     let phase_3_progress = calc_progress(vaccinations_so_far, phase_3);
 
-    let calc_goal = |now, target_pct, progress| *[now, (now as f64 * (target_pct + progress - target_pct * progress)) as i64].iter().min().unwrap();
+    let calc_goal = |now, target_pct, progress| {
+        *[
+            now,
+            (now as f64 * (target_pct + progress - target_pct * progress)) as i64,
+        ]
+        .iter()
+        .min()
+        .unwrap()
+    };
 
     let smitte = TimeSeriesGroup::new(vec![TimeSeries::from_str(
         vec!["Smittede per dag".to_string()].into(),

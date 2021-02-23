@@ -1,5 +1,6 @@
 use crate::web;
 use chrono::{DateTime, NaiveDate, Utc};
+use im::ordmap::Entry;
 use std::ops::Add;
 
 pub struct TimeSeriesGroup {
@@ -145,12 +146,18 @@ impl TimeSeries {
         let mut points = im::OrdMap::new();
 
         for line in data.lines() {
-            let mut it = line.split(';');
+            let sep = if line.contains(';') { ';' } else { ',' };
+            let mut it = line.split(sep);
             let date = parse_date(it.next().unwrap());
 
             if let Some(d) = date {
                 let v = f(it.collect());
-                points.insert(d, v);
+                match points.entry(d) {
+                    Entry::Occupied(mut p) => *p.get_mut() = *p.get() + v,
+                    Entry::Vacant(spot) => {
+                        spot.insert(v);
+                    }
+                }
             }
         }
 
