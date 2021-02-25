@@ -8,3 +8,8 @@ curl $(curl https://covid19.ssi.dk/overvagningsdata/download-fil-med-overvaagnin
 
 unzip data-epidemiologiske-rapport.zip
 unzip vaccinationsdata.zip
+
+if [ -d ArcGIS_dashboards_data ]; then
+  cp ArcGIS_dashboards_data/Vaccine_DB/* Vaccine_DB/
+  rm -r  ArcGIS_dashboards_data
+fi
