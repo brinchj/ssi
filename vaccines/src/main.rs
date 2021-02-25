@@ -62,9 +62,9 @@ fn main() {
     let mut vaccinations_so_far = 0;
 
     let vaccine_started_data =
-        include_bytes!("../data/ArcGIS_dashboards_data/Vaccine_DB/FoersteVacc_region_dag.csv");
+        include_bytes!("../data/Vaccine_DB/FoersteVacc_region_dag.csv");
     let vaccine_done_data =
-        include_bytes!("../data/ArcGIS_dashboards_data/Vaccine_DB/FaerdigVacc_region_dag.csv");
+        include_bytes!("../data/Vaccine_DB/FaerdigVacc_region_dag.csv");
     let smitte_data = include_str!("../data/Municipality_cases_time_series.csv");
     let indlagte_data = include_str!("../data/Newly_admitted_over_time.csv");
     let dode_data = include_str!("../data/Deaths_over_time.csv");
