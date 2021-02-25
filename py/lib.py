@@ -56,7 +56,7 @@ class Prediction:
 
         def fix(f, nxt):
             count = 0
-            while count < 10:
+            while count < 15:
                 count += 1
                 line, nxt = f(nxt)
                 if any(p[0] < 250 for p in line):
@@ -67,7 +67,7 @@ class Prediction:
             crop_start_y = fix(lambda y: (self.img[y, crop_start_x:crop_end_x], y - 1), crop_start_y)
             crop_end_y = fix(lambda y: (self.img[y, crop_start_x:crop_end_x], y + 1), crop_end_y)
             crop_start_x = fix(lambda x: (self.img[crop_start_y:crop_end_y, x], x - 1), crop_start_x)
-            crop_end_x = fix(lambda x: (self.img[crop_start_y:crop_end_y, x], x + 1), crop_end_x)
+            #crop_end_x = fix(lambda x: (self.img[crop_start_y:crop_end_y, x], x + 1), crop_end_x)
 
         return Plot(self.img[crop_start_y:crop_end_y, crop_start_x:crop_end_x],
                     x_start - crop_start_x,
@@ -124,7 +124,7 @@ class Prediction:
     def plot(self, points, start_x, start_y, x_point_width, y_point_width):
         def add_line(img, x0, y0, x1, y1):
             cc, rr, val = draw.line_aa(int(y0), int(x0), int(y1), int(x1))
-            img[cc, rr] = (255, 0, 0, 255)
+            img[cc, rr] = (0, 0, 255, 255)
 
         prev_x = start_x
         prev_y = start_y

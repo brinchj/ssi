@@ -1,34 +1,21 @@
 import lib
 
-main_title = 'Den simulerede sygehusbelastning i antal indlagte (grå baggrund)\nog de observerede værdier (rød linje)'
+main_title = 'Prognoser for antal indlagte per dag'
 
-days = 112  # [11 march; 01 july[
+days = 122  # [8 Feb; 1 June[
 
-title1 = 'Prognoser fra 6. maj 2020'
-data = lib.Prediction('reports/20200506/22.png', x_size=days, y_size=2000)
-img1 = [data.process(1010, 1064), data.process(1010, 1702), data.process(1010, 2334)]
+title1 = 'Aktivitet som 8. februar uden genåbning og med flere tests (Rref 0.75)'
+data = lib.Prediction('reports/20210221/page19-000-fixed.png', x_size=days, y_size=250)
+img1 = [data.process(158, 445)]
 
-title2 = 'Prognoser fra 13. maj 2020'
-p = (1034, 2490)
-img2 = [
-    lib.Prediction('reports/20200513/13.png', x_size=days, y_size=2000).process(*p),
-    lib.Prediction('reports/20200513/14.png', x_size=days, y_size=2000).process(*p),
-    lib.Prediction('reports/20200513/15.png', x_size=days, y_size=2000).process(*p),
-]
+title2 = '6-7% mere aktivitet i samfundet (Rref 0.80)'
+data = lib.Prediction('reports/20210221/page20-000-fixed.png', x_size=days, y_size=250)
+img2 = [data.process(158, 445)]
 
-days = 205  # [11 march; 01 october[
-title3 = '  Prognoser for fase 3 fra 20. maj 2020\n(Prognose kun for Region Hovedstaden)'
-img3 = [
-    lib.Prediction('reports/20200520/28.png', x_size=days, y_size=1500).process(1020, 1435),
-    lib.Prediction('reports/20200520/29.png', x_size=days, y_size=1500).process( 990, 1414),
-    lib.Prediction('reports/20200520/30.png', x_size=days, y_size=1500).process(1015, 1400),
-]
 
 left_explainer = [
-    'Alle voksne\noverholder retningslinjerne',
-    'Halvdelen af voksne\noverholder retningslinjerne',
-    'Adfærd som før corona'
+  'Antal indlagte per dag'
 ]
 
-final = lib.merge(left_explainer, [(title3, img3)])
+final = lib.merge(left_explainer, [(title1, img1), (title2, img2)])
 lib.save(lib.add_header(final, main_title), 'result.png')
