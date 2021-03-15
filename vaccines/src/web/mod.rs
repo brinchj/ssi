@@ -91,6 +91,7 @@ impl ChartGraph {
         x: String,
         y: String,
         series: TimeSeriesGroup,
+        stacked: bool,
     ) -> ChartGraph {
         let xs = series.xs();
 
@@ -111,7 +112,7 @@ impl ChartGraph {
                     background_color: format!("#{:x}", color),
                     border_color: format!("#{:x}", color),
                     data: xs.iter().map(|x| ts.data.get(x).cloned()).collect(),
-                    fill: "start".to_string(),
+                    fill: if stacked { "start".to_string() } else { "none".to_string() },
                     border_width: 1,
                     point_radius: 0,
                     point_hover_radius: 1,
@@ -135,7 +136,7 @@ impl ChartGraph {
             },
             scales: ChartScales {
                 x_axes: vec![ChartScale {
-                    stacked: true,
+                    stacked,
                     display: true,
                     scale_label: ChartScaleLabel {
                         display: false,
@@ -143,7 +144,7 @@ impl ChartGraph {
                     },
                 }],
                 y_axes: vec![ChartScale {
-                    stacked: true,
+                    stacked,
                     display: true,
                     scale_label: ChartScaleLabel {
                         display: true,
@@ -174,8 +175,9 @@ impl ChartGraph {
         x: String,
         y: String,
         series: TimeSeriesGroup,
+        stacked: bool
     ) -> impl horrorshow::RenderOnce {
-        let graph = Self::bar_plot(id.clone(), title, x, y, series);
+        let graph = Self::bar_plot(id.clone(), title, x, y, series, stacked);
         let json = serde_json::to_string_pretty(&graph.config).unwrap();
 
         let js = format!(

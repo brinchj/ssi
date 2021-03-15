@@ -119,7 +119,7 @@ fn main() {
             start_from_last,
             &mut phase_3_end,
         )
-        .plot(
+        .plot_stacked(
             "vaccines",
             "Antal vaccinerede",
             "dag",
@@ -169,7 +169,7 @@ fn main() {
         chrono::Duration::days(1),
         start_from_last,
     )
-    .plot(
+    .plot_stacked(
         "smitte",
         "Antal smittede per dag",
         "dag",
@@ -203,7 +203,7 @@ fn main() {
         chrono::Duration::days(1),
         start_from_last,
     )
-    .plot(
+    .plot_stacked(
         "indlagte",
         "Antal indlagte",
         "dag",
@@ -237,12 +237,39 @@ fn main() {
         chrono::Duration::days(1),
         start_from_last,
     )
-    .plot(
+    .plot_stacked(
         "dode",
         "Antal døde",
         "dag",
         "Personer der er død med ny coronavirus per dag",
     );
+    //
+    // let smittede_50 = include_bytes!("../data/smittede_50.csv");
+    // let smittede_60 = include_bytes!("../data/smittede_60.csv");
+    // let smittede_70 = include_bytes!("../data/smittede_70.csv");
+    // let smittede_80 = include_bytes!("../data/smittede_80.csv");
+    // let smittede_90 = include_bytes!("../data/smittede_90.csv");
+    // let smittede_alder = TimeSeriesGroup::new(vec![TimeSeries::from_str(
+    //     vec!["Antal smittede per dag 50-59 år".to_string()].into(),
+    //     String::from_utf8_lossy(&smittede_50[..]).as_ref(),
+    //     last_column,
+    // ), TimeSeries::from_str(
+    //     vec!["Antal smittede per dag 60-69 år".to_string()].into(),
+    //     String::from_utf8_lossy(&smittede_60[..]).as_ref(),
+    //     last_column,
+    // ), TimeSeries::from_str(
+    //     vec!["Antal smittede per dag 70-79 år".to_string()].into(),
+    //     String::from_utf8_lossy(&smittede_70[..]).as_ref(),
+    //     last_column,
+    // ), TimeSeries::from_str(
+    //     vec!["Antal smittede per dag 80-89 år".to_string()].into(),
+    //     String::from_utf8_lossy(&smittede_80[..]).as_ref(),
+    //     last_column,
+    // ), TimeSeries::from_str(
+    //     vec!["Antal smittede per dag 90+ år".to_string()].into(),
+    //     String::from_utf8_lossy(&smittede_90[..]).as_ref(),
+    //     last_column,
+    // )]).diff().plot("smittede_alder", "Smittede per dag efter alder", "dag", "Smittede per dag");
 
     let html = html! {
           : doctype::HTML;
@@ -340,6 +367,9 @@ fn main() {
                     div(class="col col-lg-12") {
                       : smitte
                     }
+                    // div(class="col col-lg-12") {
+                    //   : smittede_alder
+                    // }
                     blockquote(class="blockquote lead") {
                       p(class="mb-0") {
                         : "Jeg forventer først at se et markant dyk i antal smittede, når vi har vaccineret 60-80% af danskerne. Husk på, at samfundsaktivitet og vores opførsel også i høj grad driver smitten. Så vejen bliver ikke en lige linje i virkeligheden."

@@ -9,11 +9,20 @@ pub struct TimeSeriesGroup {
 }
 
 fn parse_date(s: &str) -> Option<NaiveDate> {
-    let mut parts = s.split('-');
-    let year: i32 = parts.next()?.parse().ok()?;
-    let month: u32 = parts.next()?.parse().ok()?;
-    let day: u32 = parts.next()?.parse().ok()?;
-    Some(NaiveDate::from_ymd(year, month, day))
+    if s.contains('M') {
+        let mut it = s.trim_start_matches('"').trim_end_matches('"').split('M').into_iter();
+        let year = it.next()?;
+        let mut it2 = it.next()?.split('D');
+        let month = it2.next()?;
+        let day = it2.next()?;
+        Some(NaiveDate::from_ymd(year.parse().ok()?, month.parse().ok()?, day.parse().ok()?))
+    } else {
+        let mut parts = s.split('-');
+        let year: i32 = parts.next()?.parse().ok()?;
+        let month: u32 = parts.next()?.parse().ok()?;
+        let day: u32 = parts.next()?.parse().ok()?;
+        Some(NaiveDate::from_ymd(year, month, day))
+    }
 }
 
 impl TimeSeriesGroup {
@@ -44,6 +53,17 @@ impl TimeSeriesGroup {
                 .series
                 .into_iter()
                 .map(|ts| ts.accumulative())
+                .collect(),
+        }
+    }
+
+    pub fn diff(self) -> Self {
+        TimeSeriesGroup {
+            updated: self.updated,
+            series: self
+                .series
+                .into_iter()
+                .map(|ts| ts.diff())
                 .collect(),
         }
     }
@@ -125,9 +145,14 @@ impl TimeSeriesGroup {
         }
     }
 
+    pub fn plot_stacked(self, id: &str, title: &str, x: &str, y: &str) -> impl horrorshow::RenderOnce {
+        let y = format!("{} — {}", y, self.updated.date().naive_local().to_string());
+        web::ChartGraph::bar_plot_html(id.into(), title.into(), x.into(), y, self, true)
+    }
+
     pub fn plot(self, id: &str, title: &str, x: &str, y: &str) -> impl horrorshow::RenderOnce {
         let y = format!("{} — {}", y, self.updated.date().naive_local().to_string());
-        web::ChartGraph::bar_plot_html(id.into(), title.into(), x.into(), y, self)
+        web::ChartGraph::bar_plot_html(id.into(), title.into(), x.into(), y, self, false)
     }
 }
 
@@ -148,7 +173,7 @@ impl TimeSeries {
         for line in data.lines() {
             let sep = if line.contains(';') { ';' } else { ',' };
             let mut it = line.split(sep);
-            let date = parse_date(it.next().unwrap());
+            let date = parse_date(it.next().unwrap()).or_else(|| it.next().and_then(|s| parse_date(s)));
 
             if let Some(d) = date {
                 let v = f(it.collect());
@@ -179,6 +204,21 @@ impl TimeSeries {
         TimeSeries {
             tags: self.tags,
             data,
+        }
+    }
+
+    pub fn diff(self) -> Self {
+        let init = (*self.data.iter().next().unwrap().1, im::OrdMap::new());
+        let (_prev, data) = self
+            .data
+            .into_iter()
+            .skip(1)
+            .fold(init, |(prev, out), (t, y)| {
+                (y, out.update(t, y - prev))
+            });
+        TimeSeries {
+            tags: self.tags,
+            data
         }
     }
 
