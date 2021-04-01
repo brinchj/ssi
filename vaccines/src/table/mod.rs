@@ -46,13 +46,19 @@ impl TimeSeriesGroup {
             .collect()
     }
 
+    fn final_date(&self) -> NaiveDate {
+        let last_date = |ts: &TimeSeries| *ts.data.iter().last().unwrap().0;
+        self.series.iter().map(last_date).max().unwrap()
+    }
+
     pub fn accumulative(self) -> Self {
+        let final_date = self.final_date();
         TimeSeriesGroup {
             updated: self.updated,
             series: self
                 .series
                 .into_iter()
-                .map(|ts| ts.accumulative())
+                .map(|ts| ts.accumulative(final_date))
                 .collect(),
         }
     }
@@ -193,14 +199,20 @@ impl TimeSeries {
         self.data.keys().max().unwrap()
     }
 
-    pub fn accumulative(self) -> Self {
+    pub fn accumulative(self, final_date: NaiveDate) -> Self {
         let init = (0i64, im::OrdMap::new());
-        let (_total, data) = self
+
+        let (total, mut data) = self
             .data
             .into_iter()
             .fold(init, |(running_total, out), (t, y)| {
                 ((y + running_total), out.update(t, y + running_total))
             });
+
+        if !data.contains_key(&final_date) {
+            data.insert(final_date, total);
+        }
+
         TimeSeries {
             tags: self.tags,
             data,
