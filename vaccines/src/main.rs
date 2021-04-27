@@ -65,9 +65,10 @@ fn main() {
         include_bytes!("../data/Vaccine_DB/FoersteVacc_region_dag.csv");
     let vaccine_done_data =
         include_bytes!("../data/Vaccine_DB/FaerdigVacc_region_dag.csv");
-    let smitte_data = include_str!("../data/Municipality_cases_time_series.csv");
-    let indlagte_data = include_str!("../data/Newly_admitted_over_time.csv");
-    let dode_data = include_str!("../data/Deaths_over_time.csv");
+
+    let smitte_data = include_bytes!("../data/Regionalt_DB/08_bekraeftede_tilfaelde_pr_dag_pr_regions.csv");
+    let indlagte_data = include_bytes!("../data/Regionalt_DB/06_nye_indlaeggelser_pr_region_pr_dag.csv");
+    let dode_data = include_bytes!("../data/Regionalt_DB/07_antal_doede_pr_dag_pr_region.csv");
 
     // People who have started vaccination.
     let vac_started = TimeSeries::from_str(
@@ -144,8 +145,8 @@ fn main() {
 
     let smitte = TimeSeriesGroup::new(vec![TimeSeries::from_str(
         vec!["Smittede per dag".to_string()].into(),
-        smitte_data,
-        sum_all_columns,
+        String::from_utf8_lossy(&smitte_data[..]).as_ref(),
+        last_column,
     )])
     .prepend(0, start_date, Duration::days(1))
     .future_goal(
@@ -178,7 +179,7 @@ fn main() {
 
     let indlagte = TimeSeriesGroup::new(vec![TimeSeries::from_str(
         vec!["Nyindlagte per dag".to_string()].into(),
-        indlagte_data,
+        String::from_utf8_lossy(&indlagte_data[..]).as_ref(),
         last_column,
     )])
     .prepend(0, start_date, Duration::days(1))
@@ -212,8 +213,8 @@ fn main() {
 
     let dode = TimeSeriesGroup::new(vec![TimeSeries::from_str(
         vec!["Antal døde per dag".to_string()].into(),
-        dode_data,
-        last_column,
+        String::from_utf8_lossy(&dode_data[..]).as_ref(),
+        |r| nth_column(0, r),
     )])
     .prepend(0, start_date, Duration::days(1))
     .future_goal(
