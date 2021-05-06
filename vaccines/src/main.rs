@@ -92,6 +92,7 @@ fn main() {
             .union_with(vac_done.data.clone(), std::ops::Sub::sub),
     );
 
+
     let vacciner = TimeSeriesGroup::new(vec![vac_done, vac_only_started])
         .prepend(0, start_date, Duration::days(1))
         .accumulative()
@@ -113,7 +114,7 @@ fn main() {
             &mut phase_2_end,
         )
         .future_goal_extrapolate(
-            "Flok-immunitet",
+            "Mål 3: Flok-immunitet",
             phase_3,
             chrono::Duration::days(1),
             delta_6weeks_avg,
@@ -161,10 +162,10 @@ fn main() {
         phase_2_end,
         |now| calc_goal(now, 0.4, phase_2_progress),
         chrono::Duration::days(1),
-        start_from_last,
+        start_from_7d_avg,
     )
     .future_goal(
-        "Flok-immunitet",
+        "Mål 3: Flok-immunitet",
         phase_3_end,
         |now| calc_goal(now, 0.0, phase_3_progress),
         chrono::Duration::days(1),
@@ -195,10 +196,10 @@ fn main() {
         phase_2_end,
         |now| calc_goal(now, 0.0, phase_2_progress),
         chrono::Duration::days(1),
-        start_from_last,
+        start_from_7d_avg,
     )
     .future_goal(
-        "Flok-immunitet",
+        "Mål 3: Flok-immunitet",
         phase_3_end,
         |now| calc_goal(now, 0.0, phase_3_progress),
         chrono::Duration::days(1),
@@ -229,10 +230,10 @@ fn main() {
         phase_2_end,
         |now| calc_goal(now, 0.0, phase_2_progress),
         chrono::Duration::days(1),
-        start_from_last,
+        start_from_7d_avg,
     )
     .future_goal(
-        "Flok-immunitet",
+        "Mål 3: Flok-immunitet",
         phase_3_end,
         |now| calc_goal(now, 0.0, phase_3_progress),
         chrono::Duration::days(1),

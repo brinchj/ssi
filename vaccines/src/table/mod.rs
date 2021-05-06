@@ -113,8 +113,11 @@ impl TimeSeriesGroup {
         let (final_date, final_sum) = self.last_sum(&start);
         let final_speed: i64 = self.series.iter().map(|x| speed(x, &final_date)).sum();
 
-        *end_date_out = final_date + step * ((goal - final_sum) / final_speed) as i32;
+        if final_sum >= goal {
+            return self
+        }
 
+        *end_date_out = final_date + step * ((goal - final_sum) / final_speed) as i32;
         return self.future_goal(title, *end_date_out, |_| goal, step, start);
     }
 
@@ -143,7 +146,9 @@ impl TimeSeriesGroup {
 
         let tags = im::OrdSet::unit(title.to_string());
         let mut series = self.series;
-        series.push(TimeSeries::new(tags, goal_data));
+        if !goal_data.is_empty() {
+            series.push(TimeSeries::new(tags, goal_data));
+        }
 
         TimeSeriesGroup {
             updated: self.updated,
